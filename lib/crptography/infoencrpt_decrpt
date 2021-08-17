@@ -1,30 +1,4 @@
-
-
-class PassForm
-{ String title;
-  String content;
-  PassForm({required this.title,required this.content});
-}
-class ListpassForm
-{ int index1;
-  late PassForm passform;//=PassForm;
-
-  ListpassForm({required this.index1});
-
-}
-class Information
-{String uid;
- String secretpin;
- String email;
- List<PassForm> code=[];
-  Information({required this.secretpin,required this.email,required this.uid});
-
- void addininfo(PassForm obj)
- {  code.add(obj);
-
- }
-
-}
+String masterkey='4s5e6ypuyt&*#';
 List<String> constrtolist(String s)
 { List<String> ans=[];
   for(int i=0;i<s.length;i++)
@@ -140,7 +114,7 @@ temp='0'+temp;
 return temp;
 }
 List<String> subsbinencrpt(List<String> s,String key ,String key2)
-{ makemapofvalstr();
+{ //makemapofvalstr();
   List<String> c=[],ans=[],octnum=[];
 
   for(int i=0;i<s.length;i++)
@@ -205,7 +179,7 @@ String fullencrption(String s,String key,String key2)
 }
 
 List<String> subsbindecrpt(List<String> cipher1,String key,String key2)
-{ makemapofvalstr();
+{ //makemapofvalstr();
   List<String> ans=[],plainstr=[];
  int lk=key.length;
     int lk2=key2.length;
@@ -287,35 +261,118 @@ String k11=ans[0];
     return finaltext;
 }
 
-
-int decrptforsize(Information obj)
-{ String key='00000000000',key2=obj.uid;
-  List<String> ans=subsbindecrpt(constrtolist(obj.secretpin), key, key2);
-    String s=conlisttostr(railfencedecrypt(ans,ans));
+String generatebin(String s,String prevk)
+{ // makemapofvalstr();
+    int ls=s.length;
+    int lp=prevk.length;
+ int lm=masterkey.length;
+   List<String> k=[];
+  for(int i=0;k.length<16;i++)
+  { int x=value[s[i%ls]]!;
+   int x1=valueofkeyval[prevk[i%lp]]!;
+    int x2= value[masterkey[i%lm]]!;
+     
+    //if((x+x1+x2)%(2))
+      k.add(((x+x1+x2)%(2)).toString());
+  }
+ 
+ 
+  return conlisttostr(k);
+}
+int decrptforsize(Information obj1)
+{ makemapofvalstr();
    
-   return (s.length/100).floor();
+ 
+  String keybin= generatebin(obj1.uid,'0');
+  print(keybin);
+  //String email=fulldecrption(obj1.email,keybin,masterkey);
+ String keybin1=generatebin(obj1.uid,keybin);
+ String secretpin=fulldecrption(obj1.secretpin,keybin1,masterkey);
+ String ans=secretpin[secretpin.length-1];
+int lenofcode=valueofkeyval[ans]!;
+ 
+  return lenofcode;
 }
 Information retinfodecrpt(Information obj1)
-{ return obj1;
+{  makemapofvalstr();
+  String keybin= generatebin(obj1.uid,'0');
+  print(keybin);
+  String email=fulldecrption(obj1.email,keybin,masterkey);
+ String keybin1=generatebin(obj1.uid,keybin);
+ String secretpin=fulldecrption(obj1.secretpin,keybin1,masterkey);
+ String ans1=secretpin.substring(0,secretpin.length-1);
+ int lencode=obj1.code.length;
+ 
+ Information ans=Information(email:email,secretpin:ans1,uid:obj1.uid);
+ for(int i=0;i<lencode;i++)
+ { String keyiterate=generatebin(obj1.uid,keybin1);
+   PassForm topass12=PassForm(title:fulldecrption(obj1.code[i].title,keyiterate,masterkey),
+                             content:fulldecrption(obj1.code[i].content,keyiterate,masterkey)
+                             );
+  ans.code.add(topass12);
+  keybin1=keyiterate;
+ }  
+return ans;
 
 }
 Information retinfoencrpt(Information obj1)
-{
-return obj1;
+{ makemapofvalstr();
+  int lencode=obj1.code.length;
+   String toadd1=keyval[lencode];
+  Information temp= Information(email:obj1.email,
+                                uid:obj1.uid,
+                                secretpin:'${obj1.secretpin}$toadd1');
+  String keybin= generatebin(obj1.uid,'0');
+  print(keybin);
+  String email=fullencrption(obj1.email,keybin,masterkey);
+ print('printed email');
+ String keybin1=generatebin(obj1.uid,keybin);
+ String secretpin=fullencrption(temp.secretpin,keybin1,masterkey);
+ Information ans=Information(email:email,secretpin:secretpin,uid:obj1.uid);
+ for(int i=0;i<lencode;i++)
+ { String keyiterate=generatebin(obj1.uid,keybin1);
+   PassForm topass12=PassForm(title:fullencrption(obj1.code[i].title,keyiterate,masterkey),
+                             content:fullencrption(obj1.code[i].content,keyiterate,masterkey)
+                             );
+  ans.code.add(topass12);
+  keybin1=keyiterate;
+ }  
+return ans;
 }
 
 
 
-
+void printinfo(Information obj)
+{
+  print(obj.email);
+  print(obj.secretpin);
+  print(obj.uid);
+ for(int i=0;i<obj.code.length;i++)
+ {print( obj.code[i].title);
+  print(obj.code[i].content);
+ }
+}
                                        // 'thequickbownfxjmpsvralzydg'
 
 void main() {
-  String s1='A88991B';
-  String ans=fullencrption(s1,'11001010101','numikio');
+ // String s1='A88991B';
+  //String ans=fullencrption(s1,'11001010101','numikio');
 // String ans2=conlisttostr(railfencedecrypt(constrtolist(ans),constrtolist(ans)));
-  String ans2=fulldecrption(ans,'11001010101','numikio');
-  print(ans);
-  print(ans2);
-  //print(ans2.length);
-  print(s1.length);
+ // String ans2=fulldecrption(ans,'11001010101','numikio');
+  Information temp=Information(email:'mytest@myapp',uid:'ujkoplpplouith',
+                              secretpin: '99300uhj');
+  temp.code.add(PassForm(title:'rediff',content:'mypass123'));
+  Information ans=retinfoencrpt(temp);
+  print('test plain');
+  printinfo(ans);
+  Information ans2=retinfodecrpt(ans);
+  printinfo(ans2);
+  int suuu=decrptforsize(ans);
+ 
+   print(suuu);
+   printinfo(ans);
+   printinfo(ans2);
+ 
 }
+
+
